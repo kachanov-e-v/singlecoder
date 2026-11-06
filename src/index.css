@@ -1,1 +1,84 @@
 @import "tailwindcss";
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #374151;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #4b5563;
+}
+
+/* Smooth scrolling */
+* {
+  scroll-behavior: smooth;
+}
+
+/* Selection */
+::selection {
+  background-color: rgba(139, 92, 246, 0.3);
+  color: white;
+}
+
+/* Prose overrides for dark mode */
+.prose {
+  color: #e5e7eb;
+}
+
+.prose strong {
+  color: #ffffff;
+}
+
+.prose code {
+  color: #c4b5fd;
+  background-color: #1f2937;
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
+  font-size: 0.8125rem;
+}
+
+.prose pre {
+  background-color: #0d1117;
+  border: 1px solid #374151;
+  border-radius: 0.5rem;
+  padding: 0;
+  margin: 0;
+}
+
+.prose pre code {
+  background: transparent;
+  padding: 0;
+  color: inherit;
+}
+
+/* Animation for streaming cursor */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.animate-blink {
+  animation: blink 1s step-end infinite;
+}
+
+/* Focus styles */
+textarea:focus,
+input:focus,
+select:focus {
+  outline: none;
+}
+
+/* Prevent layout shift */
+html, body {
+  overflow: hidden;
+}
