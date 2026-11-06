@@ -1,2 +1,2 @@
 # singlecoder
-Клон Qwen Coder на Next.js
+Singl Coder на Next.js
