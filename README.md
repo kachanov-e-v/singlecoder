@@ -1,2 +1,2 @@
 # singlecoder
-Singl Coder на Next.js
+Single Coder на Next.js
