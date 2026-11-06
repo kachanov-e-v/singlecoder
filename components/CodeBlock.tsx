@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import oneDark from 'react-syntax-highlighter/dist/esm/styles/prism/one-dark';
@@ -27,7 +29,7 @@ export default function CodeBlock({ code, language }: CodeBlockProps) {
           className="flex items-center gap-1 px-2 py-0.5 rounded text-xs text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
         >
           {copied ? <Check size={12} className="text-green-400" /> : <Copy size={12} />}
-          {copied ? 'Copied!' : 'Copy'}
+          {copied ? 'Скопировано!' : 'Копировать'}
         </button>
       </div>
 
@@ -49,3 +51,4 @@ export default function CodeBlock({ code, language }: CodeBlockProps) {
     </div>
   );
 }
+

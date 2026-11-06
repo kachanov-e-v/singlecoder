@@ -1,21 +1,72 @@
-import { useState, useCallback, useRef } from 'react';
+'use client';
+
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { Message, Chat, AppSettings, AppMode } from '../types';
 import { SYSTEM_PROMPTS } from '../constants';
 import { v4 as uuidv4 } from 'uuid';
 
-export function useChat() {
-  const [chats, setChats] = useState<Chat[]>([]);
-  const [activeChatId, setActiveChatId] = useState<string | null>(null);
+const CHATS_PREFIX = 'singlecoder:chats:';
+const ACTIVE_PREFIX = 'singlecoder:activeChat:';
+
+function chatsKey(userId: string): string {
+  return `${CHATS_PREFIX}${userId}`;
+}
+
+function activeKey(userId: string): string {
+  return `${ACTIVE_PREFIX}${userId}`;
+}
+
+function loadChats(userId: string): Chat[] {
+  try {
+    const raw = localStorage.getItem(chatsKey(userId));
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) return parsed as Chat[];
+    }
+  } catch {}
+  return [];
+}
+
+function loadActiveChatId(userId: string): string | null {
+  try {
+    return localStorage.getItem(activeKey(userId));
+  } catch {
+    return null;
+  }
+}
+
+export function useChat(userId: string) {
+  const [chats, setChats] = useState<Chat[]>(() => loadChats(userId));
+  const [activeChatId, setActiveChatIdState] = useState<string | null>(() => {
+    const id = loadActiveChatId(userId);
+    return id;
+  });
   const [isLoading, setIsLoading] = useState(false);
   const [mode, setMode] = useState<AppMode>('chat');
   const abortControllerRef = useRef<AbortController | null>(null);
+
+  // Persist active chat id
+  const setActiveChatId = useCallback((id: string | null) => {
+    setActiveChatIdState(id);
+    try {
+      if (id) localStorage.setItem(activeKey(userId), id);
+      else localStorage.removeItem(activeKey(userId));
+    } catch {}
+  }, [userId]);
+
+  // Persist chats whenever they change
+  useEffect(() => {
+    try {
+      localStorage.setItem(chatsKey(userId), JSON.stringify(chats));
+    } catch {}
+  }, [chats, userId]);
 
   const activeChat = chats.find(c => c.id === activeChatId) || null;
 
   const createNewChat = useCallback(() => {
     const newChat: Chat = {
       id: uuidv4(),
-      title: 'New Chat',
+      title: 'Новый чат',
       messages: [],
       createdAt: Date.now(),
       updatedAt: Date.now(),
@@ -24,14 +75,14 @@ export function useChat() {
     setChats(prev => [newChat, ...prev]);
     setActiveChatId(newChat.id);
     return newChat.id;
-  }, [mode]);
+  }, [mode, setActiveChatId]);
 
   const deleteChat = useCallback((chatId: string) => {
     setChats(prev => prev.filter(c => c.id !== chatId));
     if (activeChatId === chatId) {
       setActiveChatId(null);
     }
-  }, [activeChatId]);
+  }, [activeChatId, setActiveChatId]);
 
   const updateChatTitle = useCallback((chatId: string, title: string) => {
     setChats(prev => prev.map(c => c.id === chatId ? { ...c, title } : c));
@@ -58,7 +109,6 @@ export function useChat() {
       isStreaming: true,
     };
 
-    // Add user message
     setChats(prev => prev.map(c => {
       if (c.id === chatId) {
         const title = c.messages.length === 0 ? content.slice(0, 50) + (content.length > 50 ? '...' : '') : c.title;
@@ -74,26 +124,28 @@ export function useChat() {
     try {
       abortControllerRef.current = new AbortController();
 
+      const existingMessages = chats.find(c => c.id === chatId)?.messages || [];
       const messages = [
         { role: 'system', content: settings.systemPrompt || systemPrompt },
-        ...chats.find(c => c.id === chatId)!.messages.map(m => ({
+        ...existingMessages.map(m => ({
           role: m.role,
           content: m.content,
         })),
         { role: 'user', content },
       ];
 
-      const response = await fetch(`${settings.provider.baseUrl}/chat/completions`, {
+      const response = await fetch('/api/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${settings.provider.apiKey}`,
         },
         body: JSON.stringify({
+          baseUrl: settings.provider.baseUrl,
+          apiKey: settings.provider.apiKey,
           model: settings.selectedModel,
           messages,
           temperature: settings.temperature,
-          max_tokens: settings.maxTokens,
+          maxTokens: settings.maxTokens,
           stream: true,
         }),
         signal: abortControllerRef.current.signal,
@@ -101,7 +153,7 @@ export function useChat() {
 
       if (!response.ok) {
         const errorData = await response.text();
-        throw new Error(`API Error (${response.status}): ${errorData}`);
+        throw new Error(`Ошибка API (${response.status}): ${errorData}`);
       }
 
       const reader = response.body?.getReader();
@@ -109,16 +161,20 @@ export function useChat() {
       let fullContent = '';
 
       if (reader) {
+        let buffer = '';
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
 
-          const chunk = decoder.decode(value);
-          const lines = chunk.split('\n').filter(line => line.trim() !== '');
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop() || '';
 
           for (const line of lines) {
-            if (line.startsWith('data: ')) {
-              const data = line.slice(6);
+            const trimmed = line.trim();
+            if (!trimmed) continue;
+            if (trimmed.startsWith('data: ')) {
+              const data = trimmed.slice(6);
               if (data === '[DONE]') continue;
 
               try {
@@ -143,7 +199,6 @@ export function useChat() {
         }
       }
 
-      // Finalize message
       setChats(prev => prev.map(c => {
         if (c.id === chatId) {
           const msgs = [...c.messages];
@@ -164,7 +219,7 @@ export function useChat() {
           return c;
         }));
       } else {
-        const errorMsg = `⚠️ Error: ${error.message || 'Failed to get response from the API. Please check your settings and try again.'}`;
+        const errorMsg = `⚠️ Ошибка: ${error.message || 'Не удалось получить ответ от API. Проверьте настройки.'}`;
         setChats(prev => prev.map(c => {
           if (c.id === chatId) {
             const msgs = [...c.messages];
@@ -201,3 +256,4 @@ export function useChat() {
     stopGeneration,
   };
 }
+

@@ -1,14 +1,19 @@
+'use client';
+
 import { Chat, AppMode } from '../types';
-import { MessageSquare, Plus, Trash2, Settings, Code2, MessageCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { User } from '../auth/auth';
+import { MessageSquare, Plus, Trash2, Settings, Code2, MessageCircle, ChevronLeft, ChevronRight, LogOut } from 'lucide-react';
 import { useState } from 'react';
 
 interface SidebarProps {
   chats: Chat[];
   activeChatId: string | null;
   mode: AppMode;
+  user: User | null;
+  onLogout: () => void;
   onSelectChat: (id: string) => void;
   onNewChat: () => void;
-  onDeleteChat: (id: string) => void;
+  onDeleteChat: (chatId: string) => void;
   onModeChange: (mode: AppMode) => void;
   onOpenSettings: () => void;
   isCollapsed: boolean;
@@ -19,6 +24,8 @@ export default function Sidebar({
   chats,
   activeChatId,
   mode,
+  user,
+  onLogout,
   onSelectChat,
   onNewChat,
   onDeleteChat,
@@ -35,23 +42,30 @@ export default function Sidebar({
         <button
           onClick={onToggleCollapse}
           className="p-2 rounded-lg hover:bg-gray-700/50 text-gray-400 hover:text-white transition-colors"
-          title="Expand sidebar"
+          title="Развернуть панель"
         >
           <ChevronRight size={18} />
         </button>
         <button
           onClick={onNewChat}
           className="p-2 rounded-lg hover:bg-gray-700/50 text-gray-400 hover:text-white transition-colors"
-          title="New chat"
+          title="Новый чат"
         >
           <Plus size={18} />
         </button>
         <button
           onClick={onOpenSettings}
           className="p-2 rounded-lg hover:bg-gray-700/50 text-gray-400 hover:text-white transition-colors mt-auto"
-          title="Settings"
+          title="Настройки"
         >
           <Settings size={18} />
+        </button>
+        <button
+          onClick={onLogout}
+          className="p-2 rounded-lg hover:bg-gray-700/50 text-gray-400 hover:text-red-400 transition-colors"
+          title="Выйти"
+        >
+          <LogOut size={18} />
         </button>
       </div>
     );
@@ -66,7 +80,7 @@ export default function Sidebar({
             <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
               <Code2 size={14} className="text-white" />
             </div>
-            <span className="font-semibold text-white text-sm">Qwen Coder</span>
+            <span className="font-semibold text-white text-sm">SingleCoder</span>
           </div>
           <button
             onClick={onToggleCollapse}
@@ -87,7 +101,7 @@ export default function Sidebar({
             }`}
           >
             <MessageCircle size={12} />
-            Chat
+            Чат
           </button>
           <button
             onClick={() => onModeChange('dev')}
@@ -98,7 +112,7 @@ export default function Sidebar({
             }`}
           >
             <Code2 size={12} />
-            Dev
+            Разработка
           </button>
         </div>
 
@@ -108,7 +122,7 @@ export default function Sidebar({
           className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium transition-colors"
         >
           <Plus size={14} />
-          New Chat
+          Новый чат
         </button>
       </div>
 
@@ -116,7 +130,7 @@ export default function Sidebar({
       <div className="flex-1 overflow-y-auto p-2 space-y-0.5">
         {chats.length === 0 ? (
           <div className="text-center py-8 text-gray-500 text-sm">
-            No conversations yet
+            Пока нет диалогов
           </div>
         ) : (
           chats.map(chat => (
@@ -140,6 +154,7 @@ export default function Sidebar({
                     onDeleteChat(chat.id);
                   }}
                   className="p-1 rounded hover:bg-red-500/20 hover:text-red-400 transition-colors"
+                  title="Удалить"
                 >
                   <Trash2 size={12} />
                 </button>
@@ -150,15 +165,28 @@ export default function Sidebar({
       </div>
 
       {/* Footer */}
-      <div className="p-3 border-t border-gray-800">
+      <div className="p-3 border-t border-gray-800 space-y-1">
+        {user && (
+          <div className="px-3 py-1.5 text-xs text-gray-400 truncate">
+            {user.name} · {user.email}
+          </div>
+        )}
         <button
           onClick={onOpenSettings}
           className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800/50 text-sm transition-colors"
         >
           <Settings size={14} />
-          Settings
+          Настройки
+        </button>
+        <button
+          onClick={onLogout}
+          className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-gray-400 hover:text-red-400 hover:bg-gray-800/50 text-sm transition-colors"
+        >
+          <LogOut size={14} />
+          Выйти
         </button>
       </div>
     </div>
   );
 }
+

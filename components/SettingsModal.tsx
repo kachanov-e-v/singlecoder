@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import { X, Key, Globe, Cpu, Thermometer, Hash, FileText } from 'lucide-react';
 import { AppSettings, Provider } from '../types';
@@ -49,10 +51,11 @@ export default function SettingsModal({
       <div className="bg-[#1e1e2e] border border-gray-700 rounded-xl w-full max-w-lg mx-4 shadow-2xl max-h-[85vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-700">
-          <h2 className="text-lg font-semibold text-white">Settings</h2>
+          <h2 className="text-lg font-semibold text-white">Настройки</h2>
           <button
             onClick={onClose}
             className="p-1.5 rounded-lg hover:bg-gray-700 text-gray-400 hover:text-white transition-colors"
+            title="Закрыть"
           >
             <X size={18} />
           </button>
@@ -63,7 +66,7 @@ export default function SettingsModal({
           <div>
             <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
               <Globe size={14} />
-              Provider
+              Провайдер
             </label>
             <select
               value={selectedProviderId}
@@ -80,7 +83,7 @@ export default function SettingsModal({
           <div>
             <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
               <Key size={14} />
-              API Key
+              API-ключ
             </label>
             <input
               type="password"
@@ -89,7 +92,7 @@ export default function SettingsModal({
                 const updatedProvider = { ...settings.provider, apiKey: e.target.value };
                 onUpdateProvider(updatedProvider);
               }}
-              placeholder="Enter your API key..."
+              placeholder="Введите API-ключ..."
               className="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             />
           </div>
@@ -99,7 +102,7 @@ export default function SettingsModal({
             <div>
               <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
                 <Globe size={14} />
-                Base URL
+                Базовый URL
               </label>
               <input
                 type="text"
@@ -119,7 +122,7 @@ export default function SettingsModal({
           <div>
             <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
               <Cpu size={14} />
-              Model
+              Модель
             </label>
             <select
               value={settings.selectedModel}
@@ -137,14 +140,14 @@ export default function SettingsModal({
                 type="text"
                 value={customModel}
                 onChange={(e) => setCustomModel(e.target.value)}
-                placeholder="Add custom model name..."
+                placeholder="Добавить свою модель..."
                 className="flex-1 bg-gray-800 border border-gray-600 rounded-lg px-3 py-1.5 text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               />
               <button
                 onClick={handleAddCustomModel}
                 className="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white text-sm rounded-lg transition-colors"
               >
-                Add
+                Добавить
               </button>
             </div>
           </div>
@@ -153,7 +156,7 @@ export default function SettingsModal({
           <div>
             <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
               <Thermometer size={14} />
-              Temperature: {settings.temperature}
+              Температура: {settings.temperature}
             </label>
             <input
               type="range"
@@ -165,8 +168,8 @@ export default function SettingsModal({
               className="w-full accent-purple-500"
             />
             <div className="flex justify-between text-xs text-gray-500 mt-1">
-              <span>Precise (0)</span>
-              <span>Creative (2)</span>
+              <span>Точно (0)</span>
+              <span>Творчески (2)</span>
             </div>
           </div>
 
@@ -174,7 +177,7 @@ export default function SettingsModal({
           <div>
             <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
               <Hash size={14} />
-              Max Tokens
+              Макс. токенов
             </label>
             <input
               type="number"
@@ -190,12 +193,12 @@ export default function SettingsModal({
           <div>
             <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
               <FileText size={14} />
-              Custom System Prompt (optional)
+              Пользовательский системный промпт (необязательно)
             </label>
             <textarea
               value={settings.systemPrompt}
               onChange={(e) => onUpdateSettings({ systemPrompt: e.target.value })}
-              placeholder="Leave empty to use default system prompt..."
+              placeholder="Оставьте пустым для использования промпта по умолчанию..."
               rows={3}
               className="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
             />
@@ -208,10 +211,11 @@ export default function SettingsModal({
             onClick={onClose}
             className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-lg transition-colors"
           >
-            Save & Close
+            Сохранить и закрыть
           </button>
         </div>
       </div>
     </div>
   );
 }
+

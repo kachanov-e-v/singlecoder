@@ -1,3 +1,5 @@
+'use client';
+
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import CodeBlock from './CodeBlock';
@@ -29,7 +31,7 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
       {/* Content */}
       <div className="flex-1 min-w-0">
         <div className="text-xs font-medium text-gray-400 mb-1">
-          {isUser ? 'You' : 'Qwen Coder'}
+          {isUser ? 'Вы' : 'SingleCoder'}
         </div>
         <div className="prose prose-inverse prose-sm max-w-none text-gray-200 leading-relaxed">
           {isUser ? (
@@ -120,3 +122,4 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
     </div>
   );
 }
+

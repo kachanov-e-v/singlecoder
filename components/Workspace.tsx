@@ -1,11 +1,17 @@
-import { useState } from 'react';
-import Sidebar from './components/Sidebar';
-import ChatInterface from './components/ChatInterface';
-import SettingsModal from './components/SettingsModal';
-import { useChat } from './hooks/useChat';
-import { useSettings } from './hooks/useSettings';
+'use client';
 
-export default function App() {
+import { useState } from 'react';
+import Sidebar from './Sidebar';
+import ChatInterface from './ChatInterface';
+import SettingsModal from './SettingsModal';
+import { useChat } from '../hooks/useChat';
+import { useSettings } from '../hooks/useSettings';
+import { useAuth } from '../auth/AuthContext';
+
+export default function Workspace() {
+  const { user, logout } = useAuth();
+  const userId = user!.id;
+
   const {
     chats,
     activeChat,
@@ -18,7 +24,7 @@ export default function App() {
     deleteChat,
     sendMessage,
     stopGeneration,
-  } = useChat();
+  } = useChat(userId);
 
   const {
     settings,
@@ -26,7 +32,7 @@ export default function App() {
     updateProvider,
     isSettingsOpen,
     setIsSettingsOpen,
-  } = useSettings();
+  } = useSettings(userId);
 
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
@@ -41,6 +47,8 @@ export default function App() {
         chats={chats}
         activeChatId={activeChatId}
         mode={mode}
+        user={user}
+        onLogout={logout}
         onSelectChat={setActiveChatId}
         onNewChat={createNewChat}
         onDeleteChat={deleteChat}
@@ -72,3 +80,4 @@ export default function App() {
     </div>
   );
 }
+

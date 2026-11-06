@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, useRef, useEffect } from 'react';
 import { Chat, AppSettings, AppMode } from '../types';
 import ChatMessages from './ChatMessages';
@@ -63,25 +65,25 @@ export default function ChatInterface({
               <div className="absolute top-full left-0 mt-2 w-72 bg-[#1e1e2e] border border-gray-700 rounded-xl shadow-xl z-50 p-3">
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-gray-400">Provider</span>
+                    <span className="text-xs text-gray-400">Провайдер</span>
                     <span className="text-xs text-white font-medium">{settings.provider.name}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-gray-400">Model</span>
+                    <span className="text-xs text-gray-400">Модель</span>
                     <span className="text-xs text-white font-medium">{settings.selectedModel}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-gray-400">Temperature</span>
+                    <span className="text-xs text-gray-400">Температура</span>
                     <span className="text-xs text-white font-medium">{settings.temperature}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-gray-400">Max Tokens</span>
+                    <span className="text-xs text-gray-400">Макс. токенов</span>
                     <span className="text-xs text-white font-medium">{settings.maxTokens}</span>
                   </div>
                   {!hasApiKey && (
                     <div className="flex items-center gap-1.5 px-2 py-1.5 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
                       <AlertTriangle size={12} className="text-yellow-400 shrink-0" />
-                      <span className="text-xs text-yellow-300">API key not configured</span>
+                      <span className="text-xs text-yellow-300">API-ключ не настроен</span>
                     </div>
                   )}
                   <div className="pt-2 border-t border-gray-700">
@@ -92,7 +94,7 @@ export default function ChatInterface({
                       }}
                       className="w-full text-center text-xs text-purple-400 hover:text-purple-300 py-1"
                     >
-                      Change model & settings →
+                      Изменить модель и настройки →
                     </button>
                   </div>
                 </div>
@@ -103,11 +105,11 @@ export default function ChatInterface({
 
         <div className="flex items-center gap-2">
           <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-            mode === 'dev' 
-              ? 'bg-green-500/20 text-green-400 border border-green-500/30' 
+            mode === 'dev'
+              ? 'bg-green-500/20 text-green-400 border border-green-500/30'
               : 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
           }`}>
-            {mode === 'dev' ? '🛠 Dev Mode' : '💬 Chat Mode'}
+            {mode === 'dev' ? '🛠 Режим разработки' : '💬 Режим чата'}
           </span>
         </div>
       </div>
@@ -129,3 +131,4 @@ export default function ChatInterface({
     </div>
   );
 }
+

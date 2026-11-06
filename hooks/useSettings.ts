@@ -1,8 +1,10 @@
+'use client';
+
 import { useState, useEffect } from 'react';
 import { AppSettings, Provider } from '../types';
 import { DEFAULT_PROVIDERS } from '../constants';
 
-const STORAGE_KEY = 'qwen-coder-settings';
+const STORAGE_PREFIX = 'singlecoder:settings:';
 
 const defaultSettings: AppSettings = {
   provider: DEFAULT_PROVIDERS[0],
@@ -12,22 +14,28 @@ const defaultSettings: AppSettings = {
   systemPrompt: '',
 };
 
-export function useSettings() {
-  const [settings, setSettings] = useState<AppSettings>(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        return JSON.parse(stored);
-      }
-    } catch {}
-    return defaultSettings;
-  });
+function storageKey(userId: string): string {
+  return `${STORAGE_PREFIX}${userId}`;
+}
 
+function loadSettings(userId: string): AppSettings {
+  try {
+    const stored = localStorage.getItem(storageKey(userId));
+    if (stored) {
+      const parsed = JSON.parse(stored) as Partial<AppSettings>;
+      return { ...defaultSettings, ...parsed };
+    }
+  } catch {}
+  return { ...defaultSettings };
+}
+
+export function useSettings(userId: string) {
+  const [settings, setSettings] = useState<AppSettings>(() => loadSettings(userId));
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
-  }, [settings]);
+    localStorage.setItem(storageKey(userId), JSON.stringify(settings));
+  }, [settings, userId]);
 
   const updateSettings = (partial: Partial<AppSettings>) => {
     setSettings(prev => ({ ...prev, ...partial }));
@@ -37,7 +45,7 @@ export function useSettings() {
     setSettings(prev => ({
       ...prev,
       provider,
-      selectedModel: provider.models[0] || '',
+      selectedModel: provider.models[0] || prev.selectedModel,
     }));
   };
 
@@ -49,3 +57,4 @@ export function useSettings() {
     setIsSettingsOpen,
   };
 }
+
